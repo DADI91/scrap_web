@@ -30,5 +30,5 @@ class BlogSpider(scrapy.Spider):
 
     def parse(self, response):
         for title in response.css('header.headersl div.c-header-container a'):
-            yield {'title': title.css('a ::attr(href)').get()}
+            yield {'title': title.css('a ::title').get()}
             
