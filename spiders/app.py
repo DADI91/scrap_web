@@ -1,15 +1,18 @@
-import requests
 import scrapy
+import time
+import json
 
-
-class BlogSpider(scrapy.Spider):
-    name = 'seloger'
-
-
+class LeBonCoinSpider(scrapy.Spider):
+    name = "LeBonCoin"
 
     def start_requests(self):
-        start_urls = "https://www.seloger.com/list.html?projects=2&types=2&natures=1,2&isochronepoints=[{%22id%22:0,%22point%22:{%22lat%22:48.266549,%22lng%22:3.255339,%22mode%22:{%22type%22:%22Car%22,%22place%22:0,%22options%22:{%22rushHour%22:true}}},%22timeRange%22:[1800]}]&price=NaN/220000&enterprise=0&qsVersion=1.0"
-    
+
+        #url = "https://www.seloger.com/list.htm?types=1&projects=1&enterprise=0&places=%5B%7Bdiv%3A2238%7D%5D&qsVersion=1.0"
+
+        #url = "https://www.seloger.com/list.htm?types=1&projects=1&enterprise=0&places=%5B%7Bdiv%3A2238%7D%5D&qsVersion=1.0"
+
+        url = "https://www.seloger.com/immobilier/locations/bien-appartement/ile-de-france.htm?projects=1&types=1&places=[{cp:75}]&price=NaN/1200&rooms=3&enterprise=0&qsVersion=1.0"
+
         # Set the headers here. The important part is "application/json"
         headers =  {
             'Connection': 'keep-alive',
@@ -25,10 +28,25 @@ class BlogSpider(scrapy.Spider):
             'Accept-Language': 'en-US,en;q=0.9',
         }
 
-        yield scrapy.http.Request(start_urls, headers=headers)
+        yield scrapy.http.Request(url, headers=headers)
 
 
-    def parse(self, response):
-        for title in response.css('header.headersl div.c-header-container a'):
-            yield {'title': title.css('a ::text').get()}
+
+    def parse(self,response):
+        # //div[@id="images"]/a/text()
+        # div.fMfqlk
+        annonce = []
+        for annonce in response.css('div.fMfqlk'):
+            yield {
+                'piéces': annonce.css('div.Card__ContentZone-sc-7insep-3.gfORyM > div.ContentZone__DetailTop-wghbmy-6.dPYwvZ > div:nth-child(1) > ul > li:nth-child(1)::text').get()[0:1],
+                'chambres': annonce.css('div.Card__ContentZone-sc-7insep-3.gfORyM > div.ContentZone__DetailTop-wghbmy-6.dPYwvZ > div:nth-child(1) > ul > li:nth-child(2)::text').get()[0:1],
+                'surface': annonce.css('div.Card__ContentZone-sc-7insep-3.gfORyM > div.ContentZone__DetailTop-wghbmy-6.dPYwvZ > div:nth-child(1) > ul > li:nth-child(3)::text').get(),
+                'prix': annonce.css('div.Card__ContentZone-sc-7insep-3.gfORyM > div.ContentZone__DetailTop-wghbmy-6.dPYwvZ > div.Price__PriceContainer-sc-1g9fitq-0.eOPseM > div.Price__Label-sc-1g9fitq-1.mVWFG::text').get().encode('ascii','ignore'),
+                'ville': annonce.css('div.Card__ContentZone-sc-7insep-3.gfORyM > div.ContentZone__Address-wghbmy-2.fRAjHL > span:nth-child(1)::text').get(),
+                'quartier': annonce.css('div.Card__ContentZone-sc-7insep-3.gfORyM > div.ContentZone__Address-wghbmy-2.fRAjHL > span:nth-child(2)::text').get(),
+                'lien': annonce.css('div.Card__ContentZone-sc-7insep-3.gfORyM > a::attr(href)').get(),
+            }
             
+            time.sleep(1)
+        
+    

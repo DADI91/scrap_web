@@ -14,6 +14,8 @@ BOT_NAME = 'scrap_web'
 SPIDER_MODULES = ['scrap_web.spiders']
 NEWSPIDER_MODULE = 'scrap_web.spiders'
 
+MONGO_URI = 'mongodb://188.165.237.100:27017'
+MONGO_DATABASE = 'seLoger'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'scrap_web (+http://www.yourdomain.com)'
